@@ -16,14 +16,21 @@ describe('protobuf.js v6.6.5', function() {
   });
 
   it('creates a generic message with text content', function() {
-    var text = buffers.nested.Text.create({content: 'Hello'});
-    var genericMessage = buffers.nested.GenericMessage.create({message_id: 'id', text: text});
+    var GenericMessage = buffers.lookup('GenericMessage');
+    var Text = buffers.lookup('Text');
+
+    var payload = {
+      message_id: 'id',
+      messageId: 'id',
+      text: Text.create({content: 'Hello'})
+    };
+    var genericMessage = GenericMessage.create(payload);
 
     expect(genericMessage.content).toBe('text');
     expect(genericMessage.message_id).toBe('id');
     expect(genericMessage.text.content).toBe('Hello');
+    expect(GenericMessage.verify(payload)).toBe(null);
 
-    var GenericMessage = buffers.lookup("GenericMessage");
     var buffer = GenericMessage.encode(genericMessage).finish();
     var typedArray = new Uint8Array(buffer);
     var expectedArray = new Uint8Array([10, 2, 105, 100, 18, 7, 10, 5, 72, 101, 108, 108, 111]);
